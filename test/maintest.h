@@ -19,6 +19,8 @@ public:
                            const QString& category,
                            const QString& sender,
                            const QString& text);
+    virtual ~MainTest();
+    void run(const QString& value);
 
 public:
     explicit MainTest(QObject *parent = 0);

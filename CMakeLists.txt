@@ -5,7 +5,7 @@ include(ExternalProject)
 
 set(THPTY_DIR "${CMAKE_CURRENT_BINARY_DIR}/thirdparty")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-add_definitions(-DLOG_LEVEL=3)
+add_definitions(-DLOG_LEVEL=4)
 
 # Qt components
 set(THPTY_QT_VERSION "4.8" CACHE STRING "Used Qt version")

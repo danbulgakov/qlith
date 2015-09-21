@@ -3,39 +3,66 @@
 namespace QtPth
 {
 
-Thread::Thread(QObject *parent) :
-    QObject(parent)
+Thread::Thread(bool destroyOnDone,
+               QObject *parent) :
+    QObject(parent),
+    mThread(NULL),
+    mDestroyOnDone(destroyOnDone),
+    mHandler(NULL)
 {
-    pth_attr_t attr = pth_attr_new();
-    pth_attr_set(attr, PTH_ATTR_NAME, "ticker");
-    pth_attr_set(attr, PTH_ATTR_STACK_SIZE, 64*1024);
-    pth_attr_set(attr, PTH_ATTR_JOINABLE, FALSE);
-    pth_spawn(attr, &Thread::pthRun, this);
 }
 
+Thread::~Thread()
+{
+    DLOG("Destroyed");
+    if(mThread)
+    {
+        pth_join(mThread, NULL);
+    }
+}
+
+void Thread::yield()
+{
+    Q_ASSERT(mThread);
+    pth_yield(mThread);
+}
 
 void Thread::sleep(quint32 secs)
 {
     pth_sleep(secs);
 }
 
-
-Thread* Thread::spawn()
+Thread* Thread::current()
 {
-    Thread* thread = new Thread(this);
-    return thread;
+//    pth_t th = pth_self();
+//    pth_attr_t attr = pth_attr_of(th);
+//    pth_attr_get(attr, PTH_ATTR_START_ARG);
+//    mThread = pth_spawn(attr, &Thread::pthRun, this);
+//    PTH_ATTR_START_ARG
 }
 
-
-void Thread::run()
+void Thread::except(std::exception& e)
 {
-    WLOG("Empty thread is ran");
+    WLOG("Exception is thrown: %1", e.what());
 }
-
 
 void* Thread::pthRun(void* ctx)
 {
     static_cast<Thread*>(ctx)->run();
+}
+
+void Thread::run()
+{
+    try
+    {
+        mHandler();
+    }
+    catch(std::exception& e)
+    {
+        except(e);
+    }
+    if(mDestroyOnDone)
+        deleteLater();
 }
 
 }

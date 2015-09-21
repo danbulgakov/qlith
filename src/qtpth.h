@@ -9,6 +9,11 @@ namespace QtPth
     {
         pth_init();
     }
+
+    static void free()
+    {
+        pth_kill();
+    }
 }
 #endif // QTPTH
 
