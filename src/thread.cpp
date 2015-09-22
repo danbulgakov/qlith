@@ -32,18 +32,22 @@ void Thread::sleep(quint32 secs)
     pth_sleep(secs);
 }
 
-Thread* Thread::current()
+Thread* Thread::create(QObject* parent,
+                       bool destroyOnDone)
 {
-//    pth_t th = pth_self();
-//    pth_attr_t attr = pth_attr_of(th);
-//    pth_attr_get(attr, PTH_ATTR_START_ARG);
-//    mThread = pth_spawn(attr, &Thread::pthRun, this);
-//    PTH_ATTR_START_ARG
+    return new Thread(destroyOnDone, parent);
 }
 
-void Thread::except(std::exception& e)
+Thread* Thread::current()
 {
-    WLOG("Exception is thrown: %1", e.what());
+    pth_t th = pth_self();
+    Q_ASSERT(th);
+    pth_attr_t attr = pth_attr_of(th);
+    void* curTh = NULL;
+    pth_attr_get(attr, PTH_ATTR_START_ARG, &curTh);
+    Thread* result = static_cast<Thread*>(curTh);
+    QTPTH_ASSERT(result, "Current thread was not started");
+    return result;
 }
 
 void* Thread::pthRun(void* ctx)
@@ -55,11 +59,21 @@ void Thread::run()
 {
     try
     {
-        mHandler();
+        if(mHandler)
+            mHandler();
+        else
+        {
+            WLOG("Thread method is not specified");
+        }
     }
     catch(std::exception& e)
     {
-        except(e);
+        if(mExcept)
+            mExcept(ExecutionException(e, "Thread execution"));
+        else
+        {
+            ELOG("Unhandled exception: %1", e);
+        }
     }
     if(mDestroyOnDone)
         deleteLater();

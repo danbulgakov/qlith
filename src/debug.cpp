@@ -147,6 +147,12 @@ QString Debug::toString(const std::string& value)
 }
 
 
+QString Debug::toString(const exception& value)
+{
+    return QString("SExcept('%1')").arg(value.what());
+}
+
+
 QString Debug::format(const QString& asFormat)
 {
     return asFormat;

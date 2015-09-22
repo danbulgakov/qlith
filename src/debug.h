@@ -23,7 +23,7 @@
 #   define QTPTH_FUNC __func__
 #endif
 
-#define PEASSERT(cond, args...) \
+#define QTPTH_ASSERT(cond, args...) \
     Q_ASSERT_X(cond, QTPTH_FUNC, DebugUtils::format(args).toAscii().constData())
 
 using namespace std;
@@ -78,6 +78,7 @@ public:
     static QString toString(QObject* object);
     static QString toString(const QDateTime& value);
     static QString toString(const std::string& value);
+    static QString toString(const std::exception& value);
 
     // Shared pointers
     template<class T>

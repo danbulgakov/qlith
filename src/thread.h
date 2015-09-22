@@ -7,9 +7,11 @@
 #include "global.h"
 #include "logger.h"
 #include "pth.h"
+#include "exception.h"
 
 
 using namespace std;
+using namespace placeholders;
 
 namespace QtPth
 {
@@ -25,6 +27,9 @@ public:
     template<typename Object, typename Method, typename ... Args>
     static Thread* spawn(QObject* parent, Object object,
                          Method handler, Args ... args);
+
+    static Thread* create(QObject* parent,
+                          bool destroyOnDone = true);
     static Thread* current();
 
 public:
@@ -33,11 +38,13 @@ public:
     virtual ~Thread();
 
     template<typename Object, typename Method, typename ... Args>
-    void start(Object object, Method handler, Args ... args);
-    void yield();
+    Thread* start(Object object, Method handler, Args ... args);
 
-protected:
-    virtual void except(exception& e);
+    template<typename Object, typename Method, typename ... Args>
+    Thread* except(Object object, Method handler, Args ... args);
+
+    void yield();
+    void kill();
 
 private:
     static void* pthRun(void* ctx);
@@ -47,28 +54,38 @@ private:
     pth_t mThread;
     bool mDestroyOnDone;
     function<void()> mHandler;
+    function<void(const ExecutionException&)> mExcept;
 };
 
+
+template<typename Object, typename Method, typename ... Args>
+Thread* Thread::except(Object object, Method handler,
+                       Args ... args)
+{
+    mExcept = bind(handler, object, _1, args...);
+    return this;
+}
 
 template<typename Object, typename Method, typename ... Args>
 Thread* Thread::spawn(QObject* parent, Object object,
                       Method handler, Args ... args)
 {
     Thread* thread = new Thread(true, parent);
-    thread->start(object, handler, args ...);
-    return thread;
+    return thread->start(object, handler, args ...);
 }
 
 template<typename Object, typename Method, typename ... Args>
-void Thread::start(Object object, Method handler, Args ... args)
+Thread* Thread::start(Object object, Method handler, Args ... args)
 {
     Q_ASSERT(!mThread);
     mHandler = bind(handler, object, args...);
     pth_attr_t attr = pth_attr_new();
-    pth_attr_set(attr, PTH_ATTR_NAME, "ticker");
-    pth_attr_set(attr, PTH_ATTR_STACK_SIZE, 64*1024);
+    QByteArray name = Utils::strPtr(this).toAscii();
+    pth_attr_set(attr, PTH_ATTR_NAME, name.constData());
+    pth_attr_set(attr, PTH_ATTR_STACK_SIZE, 64 * 1024);
     pth_attr_set(attr, PTH_ATTR_JOINABLE, TRUE);
     mThread = pth_spawn(attr, &Thread::pthRun, this);
+    return this;
 }
 
 
