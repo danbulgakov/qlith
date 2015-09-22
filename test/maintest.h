@@ -25,6 +25,8 @@ public:
                            const QString& text);
     virtual ~MainTest();
     void run(const QString& value);
+    void loop();
+
     void exceptRun(const QString& value);
     void except(const ExecutionException& e,
                 const QString& value);

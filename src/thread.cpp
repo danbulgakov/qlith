@@ -14,22 +14,37 @@ Thread::Thread(bool destroyOnDone,
 
 Thread::~Thread()
 {
-    DLOG("Destroyed");
     if(mThread)
     {
         pth_join(mThread, NULL);
     }
+    DLOG("Destroyed");
 }
 
 void Thread::yield()
 {
     Q_ASSERT(mThread);
+    DLOG("Yield");
     pth_yield(mThread);
 }
 
-void Thread::sleep(quint32 secs)
+void Thread::kill()
 {
-    pth_sleep(secs);
+    Q_ASSERT(mThread);
+    DLOG("Kill");
+    pth_cancel(mThread);
+    if(mDestroyOnDone)
+        deleteLater();
+}
+
+void Thread::nap(qreal sec)
+{
+    pth_nap(pth_time(0, qint64(sec * 1000000.0)));
+}
+
+void Thread::sleep(qreal sec)
+{
+    pth_usleep(qint64(sec * 1000000.0));
 }
 
 Thread* Thread::create(QObject* parent,
@@ -60,7 +75,11 @@ void Thread::run()
     try
     {
         if(mHandler)
+        {
+            DLOG("Running...");
             mHandler();
+            DLOG("Done");
+        }
         else
         {
             WLOG("Thread method is not specified");
@@ -69,7 +88,10 @@ void Thread::run()
     catch(std::exception& e)
     {
         if(mExcept)
-            mExcept(ExecutionException(e, "Thread execution"));
+        {
+            mExcept(ExecutionException(
+                        e, "Thread execution"));
+        }
         else
         {
             ELOG("Unhandled exception: %1", e);

@@ -31,9 +31,19 @@ void MainTest::run(const QString& value)
     {
         //QtPth::Thread::current().yield();
         qDebug() << "TICK:" << value;
-        QtPth::Thread::sleep(1);
+        QtPth::Thread::sleep(0.5);
     }
     qDebug() << "DONE:" << value;
+}
+
+
+void MainTest::loop()
+{
+    while(true)
+    {
+        qDebug() << "Loop";
+        Thread::sleep(0.5);
+    }
 }
 
 void MainTest::exceptRun(const QString& value)
@@ -54,9 +64,12 @@ void MainTest::simpleTestCase()
     Thread* th = Thread::spawn(this, this, &MainTest::run, "Main");
     Thread::spawn(th, this, &MainTest::run, "Child-1");
     Thread::spawn(th, this, &MainTest::run, "Child-2");
+    Thread* lp = Thread::spawn(th, this, &MainTest::loop);
     Thread::create(th)
             ->except(this, &MainTest::except, "Child-3")
             ->start(this, &MainTest::exceptRun, "Child-3");
+    Thread::sleep(2);
+    lp->kill();
     delete th;
 }
 

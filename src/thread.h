@@ -22,7 +22,9 @@ class QTSHAREDLIB_EXPORT Thread : public QObject
     DECLARE_LOG_CAT(thread);
 
 public:   
-    static void sleep(quint32 secs);
+    static void sleep(qreal sec);
+    static void nap(qreal sec);
+
 
     template<typename Object, typename Method, typename ... Args>
     static Thread* spawn(QObject* parent, Object object,
