@@ -10,22 +10,18 @@ Thread::Thread(bool destroyOnDone,
     mDestroyOnDone(destroyOnDone),
     mHandler(NULL)
 {
+    DLOG("Created (auto_destroy: %1)",
+         destroyOnDone);
 }
 
 Thread::~Thread()
 {
     if(mThread)
     {
+        DLOG("Joining...");
         pth_join(mThread, NULL);
     }
     DLOG("Destroyed");
-}
-
-void Thread::yield()
-{
-    Q_ASSERT(mThread);
-    DLOG("Yield");
-    pth_yield(mThread);
 }
 
 void Thread::kill()
@@ -35,6 +31,16 @@ void Thread::kill()
     pth_cancel(mThread);
     if(mDestroyOnDone)
         deleteLater();
+}
+
+pth_t Thread::id() const
+{
+    return mThread;
+}
+
+QString Thread::toString() const
+{
+    return Debug::format("Thread(%1)", Utils::strObj(this));
 }
 
 void Thread::nap(qreal sec)
@@ -63,6 +69,11 @@ Thread* Thread::current()
     Thread* result = static_cast<Thread*>(curTh);
     QTPTH_ASSERT(result, "Current thread was not started");
     return result;
+}
+
+void Thread::yield(Thread* th)
+{
+    pth_yield(th ? th->id(): NULL);
 }
 
 void* Thread::pthRun(void* ctx)

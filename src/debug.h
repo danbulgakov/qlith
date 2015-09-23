@@ -13,18 +13,18 @@
 
 #include "utils.h"
 
-#ifndef DATETIME_FMT
-#   define DATETIME_FMT "dd.MM.yyyy hh:mm:ss.zzz"
+#ifndef QTPTH_DATE_FMT
+#   define QTPTH_DATE_FMT "dd.MM.yyyy hh:mm:ss.zzz"
 #endif
 
-#if defined(__GNUC__) || defined(__GNUG__)
+#if (defined(__GNUC__) || defined(__GNUG__)) && QTPTH_LONGLOG
 #   define QTPTH_FUNC __PRETTY_FUNCTION__
 #else
 #   define QTPTH_FUNC __func__
 #endif
 
 #define QTPTH_ASSERT(cond, args...) \
-    Q_ASSERT_X(cond, QTPTH_FUNC, DebugUtils::format(args).toAscii().constData())
+    Q_ASSERT_X(cond, QTPTH_FUNC, Debug::format(args).toAscii().constData())
 
 using namespace std;
 
@@ -128,9 +128,9 @@ public:
     static QString format(const QString& asFormat);
 
     template<class T, class ... Args>
-    static QString format(const QString& asFormat,
-                          const T& vFirst,
-                          const Args& ... aOther);
+    static QString format(const QString& fmt,
+                          const T& first,
+                          const Args& ... other);
 
 private:
     static QString userVariantToString(const QVariant& vObject);
@@ -144,42 +144,38 @@ private:
 template<class K, class V>
 QString Debug::toString(const map<K, V>& value)
 {
-    QStringList vsList;
+    QStringList list;
     typename map<K, V>::const_iterator it;
     for(it = value.begin(); it != value.end(); ++it)
-        vsList << format("%1: %2", it->first, it->second);
-    return QString("SM{%1}").arg(vsList.join(", "));
+        list << format("%1: %2", it->first, it->second);
+    return QString("SM{%1}").arg(list.join(", "));
 }
-
 
 template<class T>
 QString Debug::toString(const list<T>& value)
 {
-    QStringList vsResList;
-    typename list<T>::const_iterator it;
+    QStringList list;
+    typename QList<T>::const_iterator it;
     for(it = value.begin(); it != value.end(); ++it)
-        vsResList.append(toString(*it));
-    return QString("S[%1]").arg(vsResList.join(", "));
+        list.append(toString(*it));
+    return QString("S[%1]").arg(list.join(", "));
 }
-
 
 template<class T>
 QString Debug::toString(const set<T>& value)
 {
-    QStringList vsList;
+    QStringList list;
     typename set<T>::const_iterator it;
     for(it = value.begin(); it != value.end(); ++it)
-        vsList.append(toString(*it));
-    return QString("SS{%1}").arg(vsList.join(", "));
+        list.append(toString(*it));
+    return QString("SS{%1}").arg(list.join(", "));
 }
-
 
 template<class T>
 QString Debug::toString(const QSharedPointer<T>& ptr)
 {
     return ptr.isNull() ? QString("Shared(NULL)") : format("*%1", *ptr);
 }
-
 
 template<class T>
 QString Debug::toString(const std::shared_ptr<T>& ptr)
@@ -188,60 +184,54 @@ QString Debug::toString(const std::shared_ptr<T>& ptr)
                       : format("*r%1(NULL)", ptr.use_count());
 }
 
-
 template<class T>
 QString Debug::toString(T* ptr)
 {
     return ptr ? Debug::format("*%1", *ptr) : QString("NULL");
 }
 
-
 template<class K, class V>
 QString Debug::toString(const QMap<K, V>& value)
 {
-    QStringList vsList;
+    QStringList list;
     QMapIterator<K, V> it(value);
     while(it.hasNext())
     {
         it.next();
-        vsList << format("%1: %2", it.key(), it.value());
+        list << format("%1: %2", it.key(), it.value());
     }
-    return QString("M{%1}").arg(vsList.join(", "));
+    return QString("M{%1}").arg(list.join(", "));
 }
-
 
 template<class T>
 QString Debug::toString(const QSet<T>& value)
 {
-    QStringList vsList;
+    QStringList list;
     QSetIterator<T> it(value);
     while(it.hasNext())
-        vsList << toString(it.next());
-    return QString("S{%1}").arg(vsList.join(", "));
+        list << toString(it.next());
+    return QString("S{%1}").arg(list.join(", "));
 }
-
 
 template<class K, class V>
 QString Debug::toString(const QHash<K, V>& value)
 {
-    QStringList vsList;
+    QStringList list;
     QHashIterator<K, V> it(value);
     while(it.hasNext())
     {
         it.next();
-        vsList << format("%1: %2", it.key(), it.value());
+        list << format("%1: %2", it.key(), it.value());
     }
-    return QString("H{%1}").arg(vsList.join(", "));
+    return QString("H{%1}").arg(list.join(", "));
 }
-
 
 template<class T>
 QString Debug::toString(const QList<T>& value)
 {
-    QString vLine = Utils::joinConv<T>(value, ", ", [](T aObj) { return toString(aObj); });
-    return QString("[%1]").arg(vLine);
+    QString line = Utils::joinConv<T>(value, ", ", [](T obj) { return toString(obj); });
+    return QString("[%1]").arg(line);
 }
-
 
 template<class T>
 QString Debug::toString(const T& value)
@@ -249,24 +239,22 @@ QString Debug::toString(const T& value)
     return dumpStringHelper<T>(&value);
 }
 
-
 template<class T, class ... Args>
-QString Debug::format(const QString& asFormat,
-                           const T& vFirst,
-                           const Args& ... aOther)
+QString Debug::format(const QString& fmt,
+                      const T& first,
+                      const Args& ... other)
 {
-    return format(asFormat.arg(toString(vFirst)), aOther...);
+    return format(fmt.arg(toString(first)), other...);
 }
-
 
 template<class T>
 void Debug::registerType()
 {
     typedef QString (*CustomHelperPtr)(const T*);
-    CustomHelperPtr vpDumper = dumpStringHelper<T>;
-    qint32 vnTypeId = qMetaTypeId<T>();
+    CustomHelperPtr dumper = dumpStringHelper<T>;
+    qint32 typeId = qMetaTypeId<T>();
     QWriteLocker locker(&stringHelpersLock);
-    stringHelpers.insert(vnTypeId, reinterpret_cast<DumpStringHelperPtr>(vpDumper));
+    stringHelpers.insert(typeId, reinterpret_cast<DumpStringHelperPtr>(dumper));
 }
 
 }

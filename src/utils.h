@@ -39,7 +39,7 @@ public:
                                      int anMaxLemgth = 3000);
     static QString strPtr(void* aPtr);
     static QString strPtr(const void* aPtr);
-    static QString strObj(QObject* apObject);
+    static QString strObj(const QObject* apObject);
 
     template<class T>
     static QVariantList toVariant(const QList<T>& acList);

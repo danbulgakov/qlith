@@ -63,7 +63,7 @@ QString Utils::strPtr(const void* aPtr)
 }
 
 
-QString Utils::strObj(QObject* apObject)
+QString Utils::strObj(const QObject* apObject)
 {
     if(apObject)
     {

@@ -14,7 +14,7 @@ void QtPth::MainTest::logHandler(Logger::Priority priority,
                                  const QString& sender,
                                  const QString& text)
 {
-    qDebug() << Logger::priority(priority) << category << sender << "==>" << text;
+    qDebug() << sender << "==>" << text;
 }
 
 
@@ -26,51 +26,86 @@ MainTest::~MainTest()
 
 void MainTest::run(const QString& value)
 {
-    qDebug() << "RUN:" << value;
-    for(int i = 0; i < 5; i++)
-    {
-        //QtPth::Thread::current().yield();
-        qDebug() << "TICK:" << value;
-        QtPth::Thread::sleep(0.5);
-    }
-    qDebug() << "DONE:" << value;
+    RunEntity vEntity;
+    vEntity.method = "run";
+    vEntity.value = value;
+    mRuns.append(vEntity);
 }
 
 
-void MainTest::loop()
+void MainTest::yieldRun(const QString& value)
 {
-    while(true)
+    DLOG("Yield: %1", Thread::current());
+    Thread::yield();
+    RunEntity vEntity;
+    vEntity.method = "yield";
+    vEntity.value = value;
+    mRuns.append(vEntity);
+}
+
+
+void MainTest::loop(const QString& value)
+{
+    for(int i = 0; i < 10; ++i)
     {
-        qDebug() << "Loop";
-        Thread::sleep(0.5);
+        RunEntity vEntity;
+        vEntity.method = "loop";
+        vEntity.value = value;
+        mRuns.append(vEntity);
+        Thread::sleep(0.01);
     }
 }
 
 void MainTest::exceptRun(const QString& value)
 {
-    qDebug() << "EXCEPT RUN:" << value;
-    throw runtime_error("Hello!");
+    RunEntity vEntity;
+    vEntity.method = "except-run";
+    vEntity.value = value;
+    mRuns.append(vEntity);
+    throw runtime_error("runtime");
 }
 
 void MainTest::except(const ExecutionException& e,
                       const QString& value)
 {
-    qDebug() << "Except:" << e.toString() << ":" << value << "cause:" << e.cause().what();
+    RunEntity vEntity;
+    vEntity.method = "except";
+    vEntity.value = value;
+    mRuns.append(vEntity);
 }
 
-void MainTest::simpleTestCase()
+void MainTest::simpleYieldTestCase()
 {
-    using namespace QtPth;
-    Thread* th = Thread::spawn(this, this, &MainTest::run, "Main");
-    Thread::spawn(th, this, &MainTest::run, "Child-1");
-    Thread::spawn(th, this, &MainTest::run, "Child-2");
-    Thread* lp = Thread::spawn(th, this, &MainTest::loop);
-    Thread::create(th)
-            ->except(this, &MainTest::except, "Child-3")
-            ->start(this, &MainTest::exceptRun, "Child-3");
-    Thread::sleep(2);
-    lp->kill();
+    mRuns.clear();
+    Thread* th = Thread::spawn(this, this, &MainTest::run, "main");
+    Thread::spawn(th, this, &MainTest::yieldRun, "child-1");
+    Thread::spawn(th, this, &MainTest::run, "child-2");
     delete th;
+    QTPTH_VERIFYEQ(3, mRuns.size());
+    QTPTH_VERIFYEQ("run", mRuns[0].method);
+    QTPTH_VERIFYEQ("main", mRuns[0].value);
+    QTPTH_VERIFYEQ("run", mRuns[1].method);
+    QTPTH_VERIFYEQ("child-2", mRuns[1].value);
+    QTPTH_VERIFYEQ("yield", mRuns[2].method);
+    QTPTH_VERIFYEQ("child-1", mRuns[2].value);
+}
+
+void MainTest::loopExitTestCase()
+{
+    mRuns.clear();
+    Thread* loop = Thread::spawn(this, this, &MainTest::loop, "main");
+    Thread::sleep(0.015);
+    loop->kill();
+    delete loop;
+    DLOG(Debug::toString(mRuns));
+}
+
+void MainTest::exceptionTestCase()
+{
+    Thread* th = Thread::spawn(this, this, &MainTest::run, "main");
+    Thread::create(th)
+            ->except(this, &MainTest::except, "child-3")
+            ->start(this, &MainTest::exceptRun, "child-3");
 }
 
 

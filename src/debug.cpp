@@ -137,7 +137,7 @@ QString Debug::toString(QObject* object)
 QString Debug::toString(const QDateTime& value)
 {
     QDateTime vUTC = value.timeSpec() == Qt::LocalTime ? value.toUTC() : value;
-    return value.isValid() ? vUTC.toString(DATETIME_FMT) : QString::fromAscii("Invalid");
+    return value.isValid() ? vUTC.toString(QTPTH_DATE_FMT) : QString::fromAscii("Invalid");
 }
 
 

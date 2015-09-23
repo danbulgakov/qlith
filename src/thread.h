@@ -33,6 +33,7 @@ public:
     static Thread* create(QObject* parent,
                           bool destroyOnDone = true);
     static Thread* current();
+    static void yield(Thread* th = NULL);
 
 public:
     Thread(bool destroyOnDone = true,
@@ -45,8 +46,9 @@ public:
     template<typename Object, typename Method, typename ... Args>
     Thread* except(Object object, Method handler, Args ... args);
 
-    void yield();
     void kill();
+    pth_t id() const;
+    QString toString() const;
 
 private:
     static void* pthRun(void* ctx);
@@ -80,6 +82,7 @@ template<typename Object, typename Method, typename ... Args>
 Thread* Thread::start(Object object, Method handler, Args ... args)
 {
     Q_ASSERT(!mThread);
+    DLOG("Start");
     mHandler = bind(handler, object, args...);
     pth_attr_t attr = pth_attr_new();
     QByteArray name = Utils::strPtr(this).toAscii();
