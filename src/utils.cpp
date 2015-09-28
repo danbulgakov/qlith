@@ -1,5 +1,5 @@
 #include "utils.h"
-namespace QtPth
+namespace QLith
 {
 
 

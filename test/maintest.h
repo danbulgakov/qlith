@@ -7,19 +7,20 @@
 #include <exception>
 #include <stdexcept>
 
-#include "qtpth.h"
+#include "qlith.h"
 #include "logger.h"
 #include "thread.h"
 #include "testutils.h"
 
 
-namespace QtPth
+namespace QLith
 {
 
 class MainTest : public QObject
 {
     Q_OBJECT
     DECLARE_LOG_CAT("main_test");
+
 public:
     static void logHandler(Logger::Priority priority,
                            const QString& category,

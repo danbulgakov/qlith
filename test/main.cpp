@@ -2,4 +2,4 @@
 
 #include "maintest.h"
 
-QTEST_MAIN(QtPth::MainTest)
+QTEST_MAIN(QLith::MainTest)

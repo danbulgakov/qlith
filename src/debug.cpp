@@ -1,6 +1,6 @@
 #include "debug.h"
 
-namespace QtPth
+namespace QLith
 {
 
 QHash<qint32, DumpStringHelperPtr> Debug::stringHelpers;
@@ -137,7 +137,7 @@ QString Debug::toString(QObject* object)
 QString Debug::toString(const QDateTime& value)
 {
     QDateTime vUTC = value.timeSpec() == Qt::LocalTime ? value.toUTC() : value;
-    return value.isValid() ? vUTC.toString(QTPTH_DATE_FMT) : QString::fromAscii("Invalid");
+    return value.isValid() ? vUTC.toString(QLITH_DATE_FMT) : QString::fromAscii("Invalid");
 }
 
 

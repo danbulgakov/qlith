@@ -1,5 +1,5 @@
 #include "testutils.h"
-namespace QtPth
+namespace QLith
 {
 
 TestUtils::TestUtils()

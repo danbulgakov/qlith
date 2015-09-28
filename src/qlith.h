@@ -1,9 +1,9 @@
-#ifndef QTPTH
-#define QTPTH
+#ifndef QLITH
+#define QLITH
 
 #include "pth.h"
 
-namespace QtPth
+namespace QLith
 {
     static void init()
     {
@@ -15,5 +15,5 @@ namespace QtPth
         pth_kill();
     }
 }
-#endif // QTPTH
+#endif // QLITH
 

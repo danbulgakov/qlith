@@ -6,7 +6,7 @@
 
 #include "thread.h"
 
-namespace QtPth
+namespace QLith
 {
 
 class Pool : public QObject

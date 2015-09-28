@@ -1,6 +1,6 @@
 #include "thread.h"
 
-namespace QtPth
+namespace QLith
 {
 
 Thread::Thread(bool destroyOnDone,
@@ -67,7 +67,7 @@ Thread* Thread::current()
     void* curTh = NULL;
     pth_attr_get(attr, PTH_ATTR_START_ARG, &curTh);
     Thread* result = static_cast<Thread*>(curTh);
-    QTPTH_ASSERT(result, "Current thread was not started");
+    QLITH_ASSERT(result, "Current thread was not started");
     return result;
 }
 

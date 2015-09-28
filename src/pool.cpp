@@ -1,6 +1,6 @@
 #include "pool.h"
 
-namespace QtPth
+namespace QLith
 {
 
 Pool::Pool(qint32 threads, QObject *parent) :

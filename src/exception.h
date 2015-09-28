@@ -9,7 +9,7 @@
 
 
 using namespace std;
-namespace QtPth
+namespace QLith
 {
 
 class Exception: public exception

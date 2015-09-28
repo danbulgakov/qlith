@@ -13,22 +13,22 @@
 
 #include "utils.h"
 
-#ifndef QTPTH_DATE_FMT
-#   define QTPTH_DATE_FMT "dd.MM.yyyy hh:mm:ss.zzz"
+#ifndef QLITH_DATE_FMT
+#   define QLITH_DATE_FMT "dd.MM.yyyy hh:mm:ss.zzz"
 #endif
 
-#if (defined(__GNUC__) || defined(__GNUG__)) && QTPTH_LONGLOG
-#   define QTPTH_FUNC __PRETTY_FUNCTION__
+#if (defined(__GNUC__) || defined(__GNUG__)) && QLITH_LONGLOG
+#   define QLITH_FUNC __PRETTY_FUNCTION__
 #else
-#   define QTPTH_FUNC __func__
+#   define QLITH_FUNC __func__
 #endif
 
-#define QTPTH_ASSERT(cond, args...) \
-    Q_ASSERT_X(cond, QTPTH_FUNC, Debug::format(args).toAscii().constData())
+#define QLITH_ASSERT(cond, args...) \
+    Q_ASSERT_X(cond, QLITH_FUNC, Debug::format(args).toAscii().constData())
 
 using namespace std;
 
-namespace QtPth
+namespace QLith
 {
 
 typedef QString (*DumpStringHelperPtr)(const void*);

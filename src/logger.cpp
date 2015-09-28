@@ -1,20 +1,20 @@
 #include "logger.h"
-namespace QtPth
+namespace QLith
 {
 
 QString Logger::priority(Logger::Priority priority)
 {
     switch(priority)
     {
-    case QtPth::Logger::DEBUG:
+    case QLith::Logger::DEBUG:
         return "DEBUG";
-    case QtPth::Logger::INFO:
+    case QLith::Logger::INFO:
         return "INFO";
-    case QtPth::Logger::NOTICE:
+    case QLith::Logger::NOTICE:
         return "NOTICE";
-    case QtPth::Logger::WARNING:
+    case QLith::Logger::WARNING:
         return "WARNING";
-    case QtPth::Logger::ERROR:
+    case QLith::Logger::ERROR:
         return "ERROR";
     }
     return "UNKNWON";

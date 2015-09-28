@@ -11,7 +11,7 @@
 #include <QReadWriteLock>
 
 
-namespace QtPth
+namespace QLith
 {
 
 using namespace std;

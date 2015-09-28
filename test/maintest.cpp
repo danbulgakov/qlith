@@ -1,15 +1,15 @@
 #include "maintest.h"
-namespace QtPth
+namespace QLith
 {
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
-    LG->addHandler(&QtPth::MainTest::logHandler);
-    QtPth::init();
+    LG->addHandler(&QLith::MainTest::logHandler);
+    QLith::init();
 }
 
 
-void QtPth::MainTest::logHandler(Logger::Priority priority,
+void QLith::MainTest::logHandler(Logger::Priority priority,
                                  const QString& category,
                                  const QString& sender,
                                  const QString& text)
@@ -20,7 +20,7 @@ void QtPth::MainTest::logHandler(Logger::Priority priority,
 
 MainTest::~MainTest()
 {
-    QtPth::free();
+    QLith::free();
 }
 
 
@@ -81,13 +81,13 @@ void MainTest::simpleYieldTestCase()
     Thread::spawn(th, this, &MainTest::yieldRun, "child-1");
     Thread::spawn(th, this, &MainTest::run, "child-2");
     delete th;
-    QTPTH_VERIFYEQ(3, mRuns.size());
-    QTPTH_VERIFYEQ("run", mRuns[0].method);
-    QTPTH_VERIFYEQ("main", mRuns[0].value);
-    QTPTH_VERIFYEQ("run", mRuns[1].method);
-    QTPTH_VERIFYEQ("child-2", mRuns[1].value);
-    QTPTH_VERIFYEQ("yield", mRuns[2].method);
-    QTPTH_VERIFYEQ("child-1", mRuns[2].value);
+    QLITH_VERIFYEQ(3, mRuns.size());
+    QLITH_VERIFYEQ("run", mRuns[0].method);
+    QLITH_VERIFYEQ("main", mRuns[0].value);
+    QLITH_VERIFYEQ("run", mRuns[1].method);
+    QLITH_VERIFYEQ("child-2", mRuns[1].value);
+    QLITH_VERIFYEQ("yield", mRuns[2].method);
+    QLITH_VERIFYEQ("child-1", mRuns[2].value);
 }
 
 void MainTest::loopExitTestCase()

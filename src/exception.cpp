@@ -1,5 +1,5 @@
 #include "exception.h"
-namespace QtPth
+namespace QLith
 {
 
 Exception::~Exception() throw()

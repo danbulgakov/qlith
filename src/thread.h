@@ -13,7 +13,7 @@
 using namespace std;
 using namespace placeholders;
 
-namespace QtPth
+namespace QLith
 {
 
 class QTSHAREDLIB_EXPORT Thread : public QObject
@@ -21,7 +21,7 @@ class QTSHAREDLIB_EXPORT Thread : public QObject
     Q_OBJECT
     DECLARE_LOG_CAT(thread);
 
-public:   
+public:
     static void sleep(qreal sec);
     static void nap(qreal sec);
 
